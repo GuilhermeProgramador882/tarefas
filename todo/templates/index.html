@@ -7,11 +7,17 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body class="container mt-4">
-    <h2 class="mb-4">Lista de Tarefas</h2>
+    <h2 class="mb-4">Tarefas a fazer</h2>
     
     <form id="task-form" class="mb-3">
         <div class="input-group">
             <input type="text" id="task-input" class="form-control" placeholder="Nova tarefa" required>
+            <select name="" id="importancia-select" class="form-control" required>
+                <option value="alta">Importância Alta</option>
+                <option value="media">Importância Média</option>
+                <option value="baixa">Importância Baixa</option>
+                 <select name="" id="data-created-input" class="form-control" required></select>
+            </select>
             <button type="submit" class="btn btn-primary">Adicionar</button>
         </div>
     </form>
@@ -19,7 +25,7 @@
     <ul id="task-list" class="list-group">
         {% for task in tasks %}
             <li class="list-group-item d-flex justify-content-between align-items-center" data-id="{{ task.id }}">
-                <span class="{% if task.completed %}text-decoration-line-through{% endif %}">{{ task.title }}</span>
+                <span class="{% if task.completed %}text-decoration-line-through{% endif %}">{{ task.title }} - {{ task.importancia }} - {{ task.data_created }}</span>
                 <div>
                     <button class="btn btn-sm btn-success complete-btn">✓</button>
                     <button class="btn btn-sm btn-danger delete-btn">✗</button>
@@ -32,17 +38,19 @@
         document.addEventListener("DOMContentLoaded", function() {
             const taskForm = document.getElementById("task-form");
             const taskInput = document.getElementById("task-input");
+            const importanciaSelect = document.getElementById("importancia-select");
             const taskList = document.getElementById("task-list");
-
+       
             // Criar tarefa (POST)
             taskForm.addEventListener("submit", function(event) {
                 event.preventDefault();
                 const title = taskInput.value.trim();
+                const importancia = importanciaSelect.value;
                 if (title) {
                     fetch("/tasks/", {
                         method: "POST",
                         headers: { "Content-Type": "application/json", "X-CSRFToken": getCSRFToken() },
-                        body: JSON.stringify({ title: title })
+                        body: JSON.stringify({ title: title, importancia:importancia, })
                     })
                     .then(response => response.json())
                     .then(data => {
@@ -50,7 +58,7 @@
                         newTask.className = "list-group-item d-flex justify-content-between align-items-center";
                         newTask.dataset.id = data.id;
                         newTask.innerHTML = `
-                            <span>${data.title}</span>
+                            <span>${data.title} - ${data.importancia} - ${data.data_created} </span>
                             <div>
                                 <button class="btn btn-sm btn-success complete-btn">✓</button>
                                 <button class="btn btn-sm btn-danger delete-btn">✗</button>
@@ -58,6 +66,8 @@
                         `;
                         taskList.appendChild(newTask);
                         taskInput.value = "";
+                        importanciaSelect.value = "";
+                        dataCreatedInput.value = "";
                     });
                 }
             });
