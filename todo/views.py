@@ -26,7 +26,7 @@ def task_create(request):
         form = TaskForm(data)
         if form.is_valid():
             task = form.save()
-            return JsonResponse({'id': task.id, 'title': task.title, 'completed': task.completed,'importancia':task.importancia, 'data_created': task.data_created}, status=201)
+            return JsonResponse({'id': task.id, 'title': task.title, 'completed': task.completed,'importancia':task.importancia, 'data_created': task.data_created,'descricao': task.descricao}, status=201)
     return JsonResponse({'error': 'Invalid data'}, status=400)
 
 

@@ -5,6 +5,59 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>To-Do List</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        :root{
+            --bg:#000000;
+            --panel:#0f0f0f;
+            --silver:#e6e6e6;
+            --muted:#9aa0a6;
+            --input-bg:#0f0f0f;
+            --input-bg-focus:#1a1a1a;
+            --input-text:#ffffff; /* ensure typed text is white */
+            --placeholder:#7a7f84;
+            --accent:#6c757d;
+            --success:#38b000; /* baixa */
+            --warning:#ffd60a; /* media */
+            --danger:#ff3b30;  /* alta */
+        }
+        html,body{height:100%;}
+        body{background:linear-gradient(180deg,var(--bg),#050505);color:var(--silver);min-height:100vh;font-family:Inter,system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif}
+        .container{max-width:900px}
+        h2{color:var(--silver);font-weight:600}
+        .input-group{gap:.6rem;display:flex;flex-wrap:wrap}
+        .form-control{background:var(--input-bg) !important;border:1px solid #222 !important;color:var(--input-text) !important;border-radius:999px !important;padding:.6rem 1rem !important;box-shadow:inset 0 1px 0 rgba(255,255,255,0.02) !important;transition:all .15s ease !important}
+        .form-control::placeholder{color:var(--placeholder) !important}
+        .form-control:focus{background:var(--input-bg-focus) !important;outline:none !important;border-color:#444 !important;box-shadow:0 6px 18px rgba(0,0,0,0.6) !important;color:var(--input-text) !important;-webkit-text-fill-color:var(--input-text) !important;caret-color:var(--input-text) !important}
+        select.form-control{color:var(--input-text) !important;background:var(--input-bg) !important}
+        /* Force dark background for browser autofill and other UA styles */
+        input.form-control:-webkit-autofill,
+        textarea.form-control:-webkit-autofill,
+        select.form-control:-webkit-autofill {
+            -webkit-box-shadow: 0 0 0px 1000px var(--input-bg) inset !important;
+            box-shadow: 0 0 0px 1000px var(--input-bg) inset !important;
+            -webkit-text-fill-color: var(--input-text) !important;
+        }
+        /* Additional focus variants for different browsers */
+        .form-control:focus-visible,
+        .form-control:active{
+            background:var(--input-bg-focus) !important;
+            color:var(--input-text) !important;
+        }
+        .btn-primary{background:#1f1f1f;border:1px solid #333;color:var(--silver);border-radius:999px;padding:.5rem .9rem}
+        .btn-primary:hover{background:#2a2a2a}
+        .list-group-item{background:linear-gradient(180deg,var(--panel),#0b0b0b);border:1px solid #222;color:var(--silver);border-radius:10px;margin-bottom:.6rem}
+        .task-row{display:flex;justify-content:space-between;align-items:center;gap:12px}
+        .task-text{display:flex;flex-direction:column;gap:6px}
+        .task-title{font-weight:600;color:var(--silver)}
+        .task-meta{color:var(--muted);font-size:.85rem}
+        .importance-badge{display:inline-block;padding:6px 12px;border-radius:999px;font-weight:700;font-size:.85rem;color:#0a0a0a;text-transform:capitalize;min-width:84px;text-align:center}
+        .importance-baixa{background:var(--success)}
+        .importance-media{background:var(--warning)}
+        .importance-alta{background:var(--danger)}
+        .btn-success{background:var(--success);border:none;color:#071707}
+        .btn-danger{background:var(--danger);border:none;color:#2b0b07}
+        @media (max-width:600px){.input-group{flex-direction:column}.task-row{flex-direction:column;align-items:flex-start}}
+    </style>
 </head>
 <body class="container mt-4">
     <h2 class="mb-4">Tarefas a fazer</h2>
@@ -13,22 +66,30 @@
         <div class="input-group">
             <input type="text" id="task-input" class="form-control" placeholder="Nova tarefa" required>
             <select name="" id="importancia-select" class="form-control" required>
-                <option value="alta">Importância Alta</option>
-                <option value="media">Importância Média</option>
-                <option value="baixa">Importância Baixa</option>
-                 <select name="" id="data-created-input" class="form-control" required></select>
+                <option value="alta">Alta</option>
+                <option value="media" selected>Media</option>
+                <option value="baixa">Baixa</option>
             </select>
+            <input type="text" id="descricao-input" class="form-control" placeholder="Descrição (opcional)">
             <button type="submit" class="btn btn-primary">Adicionar</button>
         </div>
     </form>
 
     <ul id="task-list" class="list-group">
         {% for task in tasks %}
-            <li class="list-group-item d-flex justify-content-between align-items-center" data-id="{{ task.id }}">
-                <span class="{% if task.completed %}text-decoration-line-through{% endif %}">{{ task.title }} - {{ task.importancia }} - {{ task.data_created }}</span>
-                <div>
-                    <button class="btn btn-sm btn-success complete-btn">✓</button>
-                    <button class="btn btn-sm btn-danger delete-btn">✗</button>
+            <li class="list-group-item" data-id="{{ task.id }}">
+                <div class="task-row">
+                    <div class="task-text">
+                        <div class="task-title {% if task.completed %}text-decoration-line-through{% endif %}">{{ task.title }}</div>
+                        <div>
+                            <span class="importance-badge importance-{{ task.importancia }}">{{ task.importancia }}</span>
+                            <small class="task-meta">{{ task.data_created }}{% if task.descricao %} • {{ task.descricao }}{% endif %}</small>
+                        </div>
+                    </div>
+                    <div class="task-actions">
+                        <button class="btn btn-sm btn-success complete-btn">✓</button>
+                        <button class="btn btn-sm btn-danger delete-btn">✗</button>
+                    </div>
                 </div>
             </li>
         {% endfor %}
@@ -40,34 +101,43 @@
             const taskInput = document.getElementById("task-input");
             const importanciaSelect = document.getElementById("importancia-select");
             const taskList = document.getElementById("task-list");
-       
+            const descricaoInput = document.getElementById("descricao-input");
             // Criar tarefa (POST)
             taskForm.addEventListener("submit", function(event) {
                 event.preventDefault();
                 const title = taskInput.value.trim();
                 const importancia = importanciaSelect.value;
+                const descricao = descricaoInput.value.trim();
                 if (title) {
                     fetch("/tasks/", {
                         method: "POST",
                         headers: { "Content-Type": "application/json", "X-CSRFToken": getCSRFToken() },
-                        body: JSON.stringify({ title: title, importancia:importancia, })
+                        body: JSON.stringify({ title: title, importancia:importancia, descricao: descricao })
                     })
                     .then(response => response.json())
                     .then(data => {
                         const newTask = document.createElement("li");
-                        newTask.className = "list-group-item d-flex justify-content-between align-items-center";
+                        newTask.className = "list-group-item";
                         newTask.dataset.id = data.id;
                         newTask.innerHTML = `
-                            <span>${data.title} - ${data.importancia} - ${data.data_created} </span>
-                            <div>
-                                <button class="btn btn-sm btn-success complete-btn">✓</button>
-                                <button class="btn btn-sm btn-danger delete-btn">✗</button>
+                            <div class="task-row">
+                                <div class="task-text">
+                                    <div class="task-title">${data.title}</div>
+                                    <div>
+                                        <span class="importance-badge importance-${data.importancia}">${data.importancia}</span>
+                                        <small class="task-meta">${data.data_created}${data.descricao ? ' • ' + data.descricao : ''}</small>
+                                    </div>
+                                </div>
+                                <div class="task-actions">
+                                    <button class="btn btn-sm btn-success complete-btn">✓</button>
+                                    <button class="btn btn-sm btn-danger delete-btn">✗</button>
+                                </div>
                             </div>
                         `;
-                        taskList.appendChild(newTask);
+                        taskList.prepend(newTask);
                         taskInput.value = "";
-                        importanciaSelect.value = "";
-                        dataCreatedInput.value = "";
+                        importanciaSelect.value = "media";
+                        descricaoInput.value = "";
                     });
                 }
             });
@@ -80,10 +150,11 @@
                     fetch(`/tasks/${taskId}/`, { method: "PATCH", headers: { "X-CSRFToken": getCSRFToken() } })
                     .then(response => response.json())
                     .then(data => {
+                        const titleEl = taskItem.querySelector('.task-title');
                         if (data.completed) {
-                            taskItem.querySelector("span").classList.add("text-decoration-line-through");
+                            titleEl.classList.add("text-decoration-line-through");
                         } else {
-                            taskItem.querySelector("span").classList.remove("text-decoration-line-through");
+                            titleEl.classList.remove("text-decoration-line-through");
                         }
                     });
                 }
